@@ -1,0 +1,5 @@
+[deps]
+Cbc = "9961bab8-2fa3-5c5a-9d89-47fab24efd76"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+SpineInterface = "0cda1612-498a-11e9-3c92-77fa82595a4f"

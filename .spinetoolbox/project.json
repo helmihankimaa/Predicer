@@ -10,6 +10,13 @@
                     "relative": true,
                     "path": ".spinetoolbox/specifications/Importer/data_importer.json"
                 }
+            ],
+            "Tool": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/call_model.json"
+                }
             ]
         },
         "connections": [
@@ -32,6 +39,16 @@
                     "input_data",
                     "left"
                 ]
+            },
+            {
+                "from": [
+                    "input_data",
+                    "right"
+                ],
+                "to": [
+                    "Call model",
+                    "left"
+                ]
             }
         ]
     },
@@ -39,8 +56,8 @@
         "data_connection": {
             "type": "Data Connection",
             "description": "",
-            "x": -221.3230586399446,
-            "y": 0.3902683447097779,
+            "x": -363.5730913747282,
+            "y": 9.606620463301182,
             "references": [
                 {
                     "type": "path",
@@ -52,8 +69,8 @@
         "data_importer 1": {
             "type": "Importer",
             "description": "",
-            "x": 6.390477013360293,
-            "y": 2.595398773387032,
+            "x": -192.46926262608204,
+            "y": -118.82603427261873,
             "specification": "data_importer",
             "cancel_on_error": true,
             "file_selection": [
@@ -66,8 +83,8 @@
         "input_data": {
             "type": "Data Store",
             "description": "",
-            "x": 227.82305863994463,
-            "y": 2.1256507465808454,
+            "x": -20.388733172789898,
+            "y": 2.6328171875324378,
             "url": {
                 "dialect": "sqlite",
                 "username": "",
@@ -81,6 +98,23 @@
                 }
             },
             "cancel_on_error": false
+        },
+        "Call model": {
+            "type": "Tool",
+            "description": "",
+            "x": 191.60208490807585,
+            "y": -97.25257340031118,
+            "specification": "call_model",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@input_data"
+                }
+            ],
+            "options": {
+                "julia_sysimage": ""
+            }
         }
     }
 }
