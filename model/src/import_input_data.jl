@@ -21,13 +21,21 @@ function main()
         n = input_data["nodes"][i, :]
         nodes[n.node] = Node(n.node, Bool(n.is_commodity), Bool(n.is_state), Bool(n.is_res), Bool(n.is_inflow), Bool(n.is_market), n.state_max, n.in_max, n.out_max)
         if Bool(n.is_commodity)
-            append!(nodes[n.node].cost[1], input_data["price"].t)
-            append!(nodes[n.node].cost[2], input_data["price"][!, n.node])
+            ts = input_data["price"].t
+            ps = input_data["price"][!, n.node]
+            for i in 1:length(ts)
+                tup = (ts[i], ps[i],)
+                push!(nodes[n.node].cost, tup)
+            end
             append!(dates, input_data["price"].t)
         end
         if Bool(n.is_inflow)
-            append!(nodes[n.node].inflow[1], input_data["inflow"].t)
-            append!(nodes[n.node].inflow[2], input_data["inflow"][!, n.node])
+            ts = input_data["inflow"].t
+            f = input_data["inflow"][!, n.node]
+            for i in 1:length(ts)
+                tup = (ts[i], f[i],)
+                push!(nodes[n.node].cost, tup)
+            end
             append!(dates, input_data["inflow"].t)
         end
     end
@@ -37,8 +45,12 @@ function main()
         p = input_data["processes"][i, :]
         processes[p.process] = Process(p.process, Bool(p.is_cf), Bool(p.is_online), Bool(p.is_res), string(p.conversion), p.eff, p.load_min, p.load_max, p.ramp_up, p.ramp_down)
         if Bool(p.is_cf)
-            append!(processes[p.process].cf[1], input_data["cf"].t)
-            append!(processes[p.process].cf[2], input_data["cf"][!, p.process])
+            ts = input_data["cf"].t
+            cf = input_data["cf"][!, p.process]
+            for i in 1:length(ts)
+                tup = (ts[i], cf[i],)
+                push!(processes[p.process].cf, tup)
+            end
             append!(dates, input_data["cf"].t)
         end
         for j in 1:nrow(input_data["process_topology"])
@@ -54,8 +66,12 @@ function main()
     for i in 1:nrow(input_data["markets"])
         mm = input_data["markets"][i, :]
         markets[mm.market] = Market(mm.market, mm.type, mm.node, mm.direction)
-        append!(markets[mm.market].price[1], input_data["market_prices"].t)
-        append!(markets[mm.market].price[2], input_data["market_prices"][!, mm.market])
+        ts = input_data["market_prices"].t
+        mp = input_data["market_prices"][!, mm.market]
+        for i in 1:length(ts)
+            tup = (ts[i], mp[i],)
+            push!(markets[mm.market].price, tup)
+        end
         append!(dates, input_data["market_prices"].t)
     end
     

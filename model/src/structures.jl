@@ -8,11 +8,11 @@ struct Node
     state_max::Float64
     in_max::Float64
     out_max::Float64
-    cost::Tuple{Vector{Any}, Vector{Any}}
-    inflow::Tuple{Vector{Any}, Vector{Any}}
+    cost::Vector{Tuple{String, Float64}}
+    inflow::Vector{Tuple{String, Float64}}
     processes::Vector{Any}
     function Node(name, is_commodity, is_state, is_res, is_inflow, is_market, state_max, in_max, out_max)
-        return new(name, is_commodity, is_state, is_res, is_inflow, is_market, state_max, in_max, out_max, ([], []), ([], []), [])
+        return new(name, is_commodity, is_state, is_res, is_inflow, is_market, state_max, in_max, out_max, [], [], [])
     end
 end
 
@@ -28,9 +28,9 @@ struct Process
     ramp_down::Float64
     ramp_up::Float64
     topos::Vector{Tuple{Any, Any, Float64, Float64}}
-    cf::Tuple{Vector{Any}, Vector{Any}}
+    cf::Vector{Tuple{String, Float64}}
     function Process(name, is_cf, is_online, is_res, conversion, eff, load_min, load_max, ramp_up, ramp_down)
-        return new(name, is_cf, is_online, is_res, conversion, eff, load_min, load_max, ramp_up, ramp_down, [], ([], []))
+        return new(name, is_cf, is_online, is_res, conversion, eff, load_min, load_max, ramp_up, ramp_down, [], [])
     end
 end
 
@@ -39,9 +39,9 @@ struct Market
     type::String
     node::Any
     direction::String
-    price::Tuple{Vector{Any}, Vector{Any}}
+    price::Vector{Tuple{String, Int64}}
     function Market(name, type, node, direction)
-        return new(name, type, node, direction, ([], []))
+        return new(name, type, node, direction, [])
     end
 end
 
