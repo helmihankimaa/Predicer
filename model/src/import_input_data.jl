@@ -34,7 +34,7 @@ function main()
             f = input_data["inflow"][!, n.node]
             for i in 1:length(ts)
                 tup = (ts[i], f[i],)
-                push!(nodes[n.node].cost, tup)
+                push!(nodes[n.node].inflow, tup)
             end
             append!(dates, input_data["inflow"].t)
         end
