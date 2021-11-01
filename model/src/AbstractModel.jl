@@ -4,6 +4,7 @@ using Cbc
 using DataFrames
 using StatsPlots
 using Plots
+using Dates
 
 include("structures.jl")
 
@@ -12,62 +13,25 @@ model = JuMP.Model(Cbc.Optimizer)
 set_optimizer_attributes(model, "LogLevel" => 1, "PrimalTolerance" => 1e-7)
 
 imported_data = include(".\\import_input_data.jl")()
-temporals = imported_data[1]
+temporals = sort(imported_data[1])
 nodes = imported_data[2]
 processes = imported_data[3]
 markets = imported_data[4]
 
 stochastics = [1]
 
+
 process_tuple = []
 proc_online_tuple = []
-
 # mapping flow directions of processes
-for k in keys(processes)
-    proc = processes[k]
-    
-    sources = String[]
-    sinks = String[]
-    
-    for top in proc.topos
-        if top[1] == "source"
-            push!(sources,top[2])
-        else
-            push!(sinks,top[2])
-        end
+for p in keys(processes), t in temporals#, sto in stochastics
+    for topo in processes[p].topos
+        push!(process_tuple, (p, topo[1], topo[2], t))
     end
-
-    for t in temporals
-        if proc.conversion == "1"
-            for s in sources
-                push!(process_tuple,(proc.name,s,proc.name,t))
-            end
-            for s in sinks
-                push!(process_tuple,(proc.name,proc.name,s,t))
-            end
-        elseif proc.conversion == "2"
-            for so in sources
-                for si in sinks
-                    push!(process_tuple,(proc.name,so,si,t))
-                end
-            end
-        elseif proc.conversion == "3"
-            for so in sources
-                for si in sinks
-                    push!(process_tuple,(proc.name,so,si,t))
-                    push!(process_tuple,(proc.name,si,so,t))
-                end
-            end
-        end
-
-        if proc.is_online
-            push!(proc_online_tuple,(proc.name,t))
-        end
-
+    if processes[p].is_online
+        push!(proc_online_tuple, (p, t))
     end
-
 end
-
 # create variables with process_tuple
 @variable(model, v_flow[tup in process_tuple] >= 0)
 # if online variables exist, they are created
@@ -76,32 +40,23 @@ if !isempty(proc_online_tuple)
 end
 
 nod_tuple = []
-for t in temporals
-    for n in keys(nodes)
-        nod = nodes[n]
-        if nod.is_state
-            push!(nod_tuple,(nod.name,t))
-        end
+node_balance_tuple = []
+for n in keys(nodes), t in temporals
+    if nodes[n].is_state
+        push!(nod_tuple, (n, t))
+    end
+    if !(nodes[n].is_commodity) & !(nodes[n].is_market)
+        push!(node_balance_tuple, (n,t))
     end
 end
-
+# Node state variable
 @variable(model, v_state[tup in nod_tuple] >= 0)
 
-
-node_balance_tuple = []
-for n in keys(nodes)
-    if !(nodes[n].is_commodity) & !(nodes[n].is_market)
-        for t in temporals
-            push!(node_balance_tuple, (n,t))
-            
-        end
-    end
-end
-
+# Dummy variables for node_states
 @variable(model, vq_state_up[tup in node_balance_tuple] >= 0)
 @variable(model, vq_state_dw[tup in node_balance_tuple] >= 0)
 
-
+# Balance constraints
 e_prod = []
 e_cons = []
 e_state = []
@@ -125,7 +80,7 @@ for (i,tu) in enumerate(node_balance_tuple)
         prod_expr = @expression(model, sum(v_flow[prod]) +vq_state_up[tu])
     end
     if nodes[tu[1]].is_state
-        if tu[2]=="t1"
+        if tu[2]== temporals[1]
             state_expr = @expression(model, v_state[tu])
         else
             state_expr = @expression(model, v_state[tu] - v_state[node_balance_tuple[i-1]])
@@ -220,7 +175,6 @@ end
 if !isempty(market_tup)
     @expression(model, market_costs, v_flow[market_tup].*market_vec)
 end
-
 
 
 @objective(model,Min, sum(commodity_costs)+sum(market_costs)+100000*sum(vq_state_dw.+vq_state_up))

@@ -53,11 +53,33 @@ function main()
             end
             append!(dates, input_data["cf"].t)
         end
+        sources = []
+        sinks = []
         for j in 1:nrow(input_data["process_topology"])
             pt = input_data["process_topology"][j, :]
             if pt.process == p.process
-                push!(processes[p.process].topos, (pt.source_sink, pt.node, pt.capacity, pt.VOM_cost))
-                push!(nodes[pt.node].processes, p.process)
+                if pt.source_sink == "source"
+                    push!(sources, (pt.node, pt.capacity, pt.VOM_cost))
+                elseif pt.source_sink == "sink"
+                    push!(sinks, (pt.node, pt.capacity, pt.VOM_cost))
+                end
+            end
+        end
+        if p.conversion == 1
+            for so in sources
+                push!(processes[p.process].topos, (so[1], p.process, so[2], so[3]))
+            end
+            for si in sinks
+                push!(processes[p.process].topos, (p.process, si[1], si[2], si[3]))
+            end
+        elseif p.conversion == 2
+            for so in sources, si in sinks
+                push!(processes[p.process].topos, (so[1], si[1], min(so[2], si[2]), so[3]))
+            end
+        elseif p.conversion == 3
+            for so in sources, si in sinks
+                push!(processes[p.process].topos, (so[1], si[1], min(so[2], si[2]), so[3]))
+                push!(processes[p.process].topos, (si[1], so[1], min(so[2], si[2]), si[3]))
             end
         end
     end
