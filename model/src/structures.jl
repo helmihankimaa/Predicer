@@ -1,3 +1,9 @@
+struct NodeGroup
+    name::String
+    nodes::Vector{String}
+end
+
+
 struct Node
     name::String
     is_commodity::Bool
@@ -16,8 +22,17 @@ struct Node
     end
 end
 
+struct ProcessGroup # Struct to contain separate, but obviously linked processes, such as separate flows in a CHP unit
+    name::String
+    processes::Vector{String}
+    function ProcessGroup(name)
+        return new(name, [])
+    end
+end
+
 struct Process
     name::String
+    # group::String
     is_cf::Bool
     is_online::Bool
     is_res::Bool
@@ -45,6 +60,19 @@ struct Market
     end
 end
 
+# Not implemented
+# used to constrain a process to something else, such as t, another process, or anything else. 
+# Could be used to implement ramp rates? 
+#=
+struct GenericConstraint
+    type::String # Type of constraint: CHP processes? Timesteps? Anything else? 
+    p1::Any # The first thing being constrained. This could be a process,  
+    p2::Any # The second thing being constrained.
+    function GenericConstraint
+        return new()
+    end
+end
+=#
 
 # Should this layer be more generic. Instead of having ramp up/down, have a 
 # parameter called "temporal limitations", or smthing. It could be a tuple
