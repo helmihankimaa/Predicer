@@ -350,7 +350,7 @@ for m in keys(markets)
     end
 end
 
-@variable(model, v_res_final[tup in res_market_tup] >= 0)
+@variable(model, v_res_final[tup in res_final_tuple] >= 0)
 
 model_contents["c"]["reserve_final_eq"] = Dict()
 reserve_market_profits = []
@@ -404,6 +404,8 @@ optimize!(model)
 
 v_flow_df = DataFrame(t=temporals)
 v_state_df = DataFrame(t=temporals)
+v_res_pot_df = DataFrame(t=temporals)
+v_res_final_df = DataFrame(t=temporals)
 for tup in process_tuple
     tuple_indices = filter(x -> x[1] == tup[1] && x[2] == tup[2] && x[3] == tup[3], process_tuple)
     colname = string(tup[1:3])
@@ -416,6 +418,19 @@ for tup in nod_tuple
     v_state_df[!, colname] = map(x ->value.(v_state)[tuple_indices][x], tuple_indices)
 end
 
+for tup in filter(t->t[5] == temporals[1], res_potential_tuple)
+    tuple_indices = filter(x -> x[1:4] == tup[1:4], res_potential_tuple)
+    print(tuple_indices, "\n")
+    colname = string(tup[1:4])
+    v_res_pot_df[!, colname] = map(x ->value.(v_reserve)[tuple_indices][x], tuple_indices)
+end
+
+for tup in filter(t-> t[2] == temporals[1], res_final_tuple)
+    tuple_indices = filter(x -> x[1] == tup[1], res_final_tuple)
+    colname = string(tup[1])
+    v_res_final_df[!, colname] = map(x ->value.(v_res_final)[tuple_indices][x], tuple_indices)
+end
+
 pt1 = @df v_flow_df plot(:t, cols(propertynames(v_flow_df)[2:2]),lw=2,xticks=Time(0):Hour(4):Time(23))
 pt2 = @df v_flow_df plot(:t, cols(propertynames(v_flow_df)[3:4]),lw=2,xticks=Time(0):Hour(4):Time(23))
 pt3 = @df v_flow_df plot(:t, cols(propertynames(v_flow_df)[5:7]),lw=2,xticks=Time(0):Hour(4):Time(23))
@@ -423,8 +438,8 @@ pt4 = @df v_flow_df plot(:t, cols(propertynames(v_flow_df)[8:9]),lw=2,xticks=Tim
 pt5 = @df v_flow_df plot(:t, cols(propertynames(v_flow_df)[10:11]),lw=2,xticks=Time(0):Hour(4):Time(23))
 pt6 = @df v_flow_df plot(:t, cols(propertynames(v_flow_df)[12:12]),lw=2,xticks=Time(0):Hour(4):Time(23))
 pt7 = @df v_state_df plot(:t, cols(propertynames(v_state_df)[2:end]),lw=2,xticks=Time(0):Hour(4):Time(23))
-
-plot(pt1,pt2,pt3,pt4,pt5,pt6,pt7,layout=grid(7,1),size=(1000,1000),legend = :outerright)
+pt8 = @df v_res_final_df plot(:t, cols(propertynames(v_res_final_df)[2:end]),lw=2,xticks=Time(0):Hour(4):Time(23))
+plot(pt1,pt2,pt3,pt4,pt5,pt6,pt7,pt8,layout=grid(8,1),size=(1000,1000),legend = :outerright)
 
 
 #@expression(model, e_cons[tup in node_balance_tuple], reduce(+,v_flow[filter(x->(x[3]==tup[1] && x[4]==tup[2]),process_tuple)],init = 0)-vq_state_up[tup])
