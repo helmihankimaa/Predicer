@@ -1,9 +1,9 @@
 using DataFrames
 using XLSX
-include(".\\structures.jl")
-function main()
+
+function import_input_data()
     sheetnames = ["nodes", "processes", "process_topology", "cf", "inflow", "price", "markets", "market_prices"]#, "energy_market", "reserve_market"]
-    
+
     # Assuming this file is under \predicer\model
     wd = split(string(@__DIR__), "model")[1]
     input_data_path = wd * "input_data\\input_data_V3.xlsx"
