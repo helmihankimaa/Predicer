@@ -1,6 +1,6 @@
+authors = ["dsdennis"]
 name = "AbstractModel"
 uuid = "0f14bbd8-593a-4bbc-8ec0-b728f6a4d88c"
-authors = ["dsdennis "]
 version = "0.1.0"
 
 [deps]
