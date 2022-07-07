@@ -4,6 +4,7 @@ module Predicer
     include("tuples.jl")
     include("variables.jl")
     include("constraints.jl")
+    include("import_input_data.jl")
     
     
 
@@ -85,5 +86,7 @@ module Predicer
     setup_generic_constraints,
     setup_cost_calculations,
     setup_objective_function
+
+    export import_input_data
     
 end

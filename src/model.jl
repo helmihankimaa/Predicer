@@ -105,6 +105,7 @@ function get_result_dataframe(model_contents,type="",process="",node="",scenario
     vars = model_contents["variable"]
     if type == "v_flow"
         v_flow = vars[type]
+        
         tups = unique(map(x->(x[1],x[2],x[3]),filter(x->x[1]==process, tuples["process_tuple"])))
         for tup in tups
             colname = join(tup,"-")
