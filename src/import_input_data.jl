@@ -4,13 +4,9 @@ using DataStructures
 using TimeZones
 import Predicer
 
-function import_input_data()
+function import_input_data(input_data_path::String)
     sheetnames_system = ["nodes", "processes", "process_topology", "markets","scenarios","efficiencies", "reserve_type","risk"]#, "energy_market", "reserve_market"]
     sheetnames_timeseries = ["cf", "inflow", "market_prices", "price","eff_ts"]
-    # Assuming this file is under \predicer\model
-    wd = split(string(@__DIR__), "src")[1]
-    input_data_path = wd * "input_data\\input_data.xlsx"
-    
 
     system_data = OrderedDict()
     timeseries_data = OrderedDict()
